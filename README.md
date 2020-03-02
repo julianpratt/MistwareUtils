@@ -3,7 +3,10 @@ Mistware.Utils - miscellaneous C# utilities
 
 Mistware is an identity chosen to evoke the concept of [Vapourware](https://en.wikipedia.org/wiki/Vaporware).
 
-These are utilities to simplify the task of creating web applications. They may be idiosyncratic and are almost certainly based on ideas from a previous era, but I find them useful and I put them here so I could use them more easily. Please don't blame me if you waste time trying to find something useful here and merely end up asking "why!!". You have been warned, the clue is in the name, perhaps there is nothing particularly useful here. 
+These are utilities to simplify the task of creating web applications. They may be idiosyncratic and are almost certainly based on ideas from a previous era, but I find them useful and put them here to use them more easily. 
+
+Please don't blame me if you waste time trying to find something useful here and merely end up asking "why!!". You have been warned, the clue is in the name, perhaps there is nothing particularly useful here. 
+
 
 Features
 --------
