@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Types>
+	<SearchTypes>
+		<value>R</value>
+		<name>Report</name>
+		<text>Report (R)</text>
+	</SearchTypes>
+	<SearchTypes>
+		<value>M</value>
+		<name>Memo</name>
+		<text>Memo (M)</text>
+	</SearchTypes>
+	<SearchTypes>
+		<value>WP</value>
+		<name>Welding Procedure</name>
+		<text>Welding Procedure (WP)</text>
+	</SearchTypes>
+</Types>

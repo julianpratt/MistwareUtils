@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<configuration>
+  <appSettings>
+    <add key="Tenant"   value="ratcliffe.onmicrosoft.com" />
+    <add key="AppURL"   value="http://reportdist.azurewebsites.net" />
+    <add key="MailPort" value="25" />
+    <add key="Env"      value="Production" />
+  </appSettings>
+  <connectionStrings>
+    <add name="ReportDist" connectionString="Server=;Database=;User ID=;Password=;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;" />
+  </connectionStrings>
+</configuration>
