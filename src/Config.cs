@@ -20,16 +20,21 @@ SOFTWARE.
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
+using System.Text.Json;
 
 namespace Mistware.Utils
 {
     /// Static class to handle application settings. Consolidated configuration from environment (variables) 
-    /// and config file (which defaults to "web.config"). The Setup method must be called to read in environment 
-    /// variables and config file settings. Thereafter settings can be accessed via Get and Set methods. 
+    /// and config file (which defaults to "web.config"). The config file can also be json 
+    /// (e.g. "appsettings.json"), but only one json file is read in ("appsettings.development.json" is 
+    /// ignored). The Setup method must be called to read in environment variables and config file settings. 
+    /// Thereafter settings can be accessed via Get and Set methods. 
     /// Or using a number of built in properties: ContentRoot, WebRoot, AppName, AppURL, Env, Debug, LogFile.
     ///
-    /// The config file is read in by Setup(), which looks for Xpath of /configuration/appsettings/add (and uses 
-    /// key and value attributes) or /configuration/connectionstrings/add (and uses name and connectionstring attributes).
+    /// If the config file read in by Setup() is XML, then it looks for Xpath of 
+    /// /configuration/appsettings/add (and uses key and value attributes) or 
+    /// /configuration/connectionstrings/add (and uses name and connectionstring attributes).
     public static class Config
     {
         private static Dictionary<string,string> settings = null;
@@ -61,16 +66,38 @@ namespace Mistware.Utils
             WebRoot     = StripDelimiter(webRoot);
             AppName     = appName;
 
-            ReadConfig(StripDelimiter(contentRoot) + PathDelimiter + configFile);
+            configFile = StripDelimiter(contentRoot) + PathDelimiter + configFile;
+            string ext = Path.GetExtension(configFile);
+            if      ( ext == ".config" || ext == ".xml") ReadConfig(configFile);
+            else if ( ext == ".json"  )                  ReadJsonConfig(configFile);
 
             // Ensure defaults are set
             _  = Env;
             if (Get("LogFile")==null) Set("LogFile", AppName+".log");
         }
 
+        private static void ReadJsonConfig(string configFile)
+        {
+            if (File.Exists(configFile))
+            {
+                string json = File.ReadAllText(configFile);
+            
+                using (JsonDocument document = JsonDocument.Parse(json))
+                {
+                    foreach (JsonProperty prop in document.RootElement.EnumerateObject())
+                    {
+                        string key = prop.Name;
+                        string valuekind = prop.Value.ValueKind.ToString();
+                        if      (valuekind == "String")  Config.Set(key, prop.Value.GetString());
+                        else if (valuekind == "Number")  Config.Set(key, prop.Value.GetInt64().ToString());
+                    }
+                }
+            }    
+        }        
+
         private static void ReadConfig(string configFile)
         {
-            if (System.IO.File.Exists(configFile))
+            if (File.Exists(configFile))
             {
                 XmlFileNode root = XmlFileRead.Load(configFile); 
                 if (root == null) return;

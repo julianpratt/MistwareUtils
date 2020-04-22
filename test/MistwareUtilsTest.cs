@@ -50,6 +50,23 @@ namespace MistwareUtilsTest
 			string delim = System.IO.Path.DirectorySeparatorChar.ToString();
 			if (Config.LogFile != "."+delim+"Logs"+delim+"app.log") sFail += "ConfigTest8 ";
 
+            try
+			{
+				Config.Setup("appsettings.json",".", "web", "app");
+			}
+			catch (Exception ex)
+			{
+				Console.WriteLine("Config.Setup failed with: " + ex.Message);
+				sFail += "ConfigTest9 ";
+			}
+			if (Config.ContentRoot    != ".")        sFail += "ConfigTest10 "; 
+			if (Config.WebRoot        != "web")      sFail += "ConfigTest11 "; 
+			if (Config.AppName        != "app")      sFail += "ConfigTest12 "; 
+			if (Config.AppURL.Left(8) != "http://r") sFail += "ConfigTest13 ";
+			if (Config.Env.Left(4)    != "Prod")     sFail += "ConfigTest14 ";
+			if (Config.Debug)                        sFail += "ConfigTest15 ";
+			if (Config.LogFile != "."+delim+"Logs"+delim+"app.log") sFail += "ConfigTest16 ";
+
 
 			// DateTime tests
 

@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<TargetFramework>netstandard2.0</TargetFramework>
-		<VersionPrefix>1.0.1</VersionPrefix>
+		<VersionPrefix>1.0.2</VersionPrefix>
 		<VersionSuffix></VersionSuffix>
 		<Authors>Julian Pratt</Authors>
 		<AssemblyTitle>Mistware.Utils</AssemblyTitle>
@@ -35,5 +35,6 @@
 	</ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="System.Runtime.Caching" Version="4.7.0" />
+		<PackageReference Include="System.Text.Json" Version="4.7.1" />
 	</ItemGroup>		
 </Project>
