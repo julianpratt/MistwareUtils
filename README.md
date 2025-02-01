@@ -7,6 +7,8 @@ These are utilities to simplify the task of creating web applications. They may 
 
 Please don't blame me if you waste time trying to find something useful here and merely end up asking "why!!". You have been warned, the clue is in the name, perhaps there is nothing particularly useful here. 
 
+**Dependency versions bumped up to 9.0.1. Compiles OK, but not tested or released.** 
+
 
 Features
 --------
