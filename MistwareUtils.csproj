@@ -20,6 +20,9 @@
 		<PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
 		<PackageProjectUrl>https://github.com/julianpratt/MistwareUtils</PackageProjectUrl>
 	</PropertyGroup>
+	<PropertyGroup>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+	</PropertyGroup>
 	<ItemGroup>
 		<Compile Include="AssemblyInfo.cs" />
 		<Compile Include="src\Config.cs" />
