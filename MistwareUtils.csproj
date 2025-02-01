@@ -34,7 +34,7 @@
 		<Compile Include="src\XmlReader.cs" />
 	</ItemGroup>
 	<ItemGroup>
-		<PackageReference Include="System.Runtime.Caching" Version="4.7.0" />
-		<PackageReference Include="System.Text.Json" Version="4.7.1" />
+		<PackageReference Include="System.Runtime.Caching" Version="9.0.1" />
+		<PackageReference Include="System.Text.Json" Version="9.0.1" />
 	</ItemGroup>		
 </Project>
