@@ -91,7 +91,7 @@ namespace Mistware.Utils
         /// <returns>Integer 1 to 7, where 1 is Monday and 7 is Sunday</returns>
         public static int DOW(this DateTime current)
         {
-            return (1 + (((current.DOY() + current.Jan1WeekDay()) - 2) % 7));
+            return Time.DOW(Time.ToDate(current.Year, current.Month, current.Day));
         }
 
         /// <summary>
@@ -100,11 +100,7 @@ namespace Mistware.Utils
         /// <returns>Integer 1 to 7, where 1 is Monday and 7 is Sunday</returns>
         public static int Jan1WeekDay(this DateTime current)
         {
-            int iYear = current.Year;
-            int i = (iYear - 1) % 100;
-            int j = (iYear - 1) - i;
-            int k = i + (i / 4);
-            return (1 + (((((j / 100) % 4) * 5) + k) % 7));
+            return Time.Jan1WeekDay(current.Year);
         }
 
         /// <summary>
@@ -114,20 +110,7 @@ namespace Mistware.Utils
         /// <returns>Integer 1 to 366, where 1 is 1st Jan</returns>
         public static int DOY(this DateTime current)
         {
-            int iAdjust;
-            int iMonth = current.Month;
-            //                              Jan, Feb, Mar, Apr, May, Jun, Jul, Aug, Sep, Oct, Nov, Dec
-            //                               31,  28,  31,  30,  31,  30,  31,  31,  30,  31,  30,  31
-            int[] months = new int[] {   0,  31,  59,  90, 120, 151, 181, 212, 243, 273, 304, 334 };
-            if ((iMonth > 2) && current.IsLeapYear())
-            {
-                iAdjust = 1;
-            }
-            else
-            {
-                iAdjust = 0;
-            }
-            return ((current.Day + months[iMonth - 1]) + iAdjust);
+            return Time.DOY(Time.ToDate(current.Year, current.Month, current.Day));
         }
 
         /// <summary>
@@ -137,8 +120,7 @@ namespace Mistware.Utils
         /// <returns>True if the date is a leap year.</returns>
         public static bool IsLeapYear(this DateTime current)
         {
-            int iYear = current.Year;
-            return ((((iYear % 4) == 0) && ((iYear % 100) != 0)) || ((iYear % 400) == 0));
+            return Time.IsLeap(current.Year);
         }
 
         /// <summary>
@@ -148,26 +130,7 @@ namespace Mistware.Utils
         /// <returns>Integer 1 to 53, where 1 is week one.</returns>
         public static int ISOWeekNum(this DateTime current)
         {
-            DateTime week1;
-            int iYear = current.Year;
-            if (current >= new DateTime(iYear, 12, 29))
-            {
-                week1 = current.AddYears(1).ISOWeekOne();
-                if (current < week1)
-                {
-                    week1 = current.ISOWeekOne();
-                }
-            }
-            else
-            {
-                week1 = current.ISOWeekOne();
-                if (current < week1)
-                {
-                    week1 = current.AddYears(-1).ISOWeekOne();
-                }
-            }
-            TimeSpan ts = (TimeSpan) (current - week1);
-            return ((ts.Days / 7) + 1);
+            return Time.ISOWeekNum(Time.ToDate(current.Year, current.Month, current.Day));
         }
 
         /// <summary>
@@ -180,14 +143,8 @@ namespace Mistware.Utils
         /// <returns>The date of the start of week one of the current year.</returns>
         public static DateTime ISOWeekOne(this DateTime current)
         {
-            int iYear = current.Year;
-            DateTime dt = new DateTime(iYear, 1, 4);
-            int iDay = (int) dt.DayOfWeek;
-            if (iDay == 0)
-            {
-                iDay = 7;
-            }
-            return dt.AddDays((double) (1 - iDay));
+            long dt = Time.ISOWeekOne(current.Year);
+            return new DateTime(Time.Year(dt), Time.Month(dt), Time.Day(dt));
         }
 
         /// <summary>
@@ -201,20 +158,7 @@ namespace Mistware.Utils
         /// <returns>The ISO year corresponding to the <paramref name="current"/>year.</returns>
         public static int ISOYear(this DateTime current)
         {
-            int iYear = current.Year;
-            if (current >= new DateTime(iYear, 12, 29))
-            {
-                if (current >= current.AddYears(1).ISOWeekOne())
-                {
-                    iYear++;
-                }
-                return iYear;
-            }
-            if (current < current.ISOWeekOne())
-            {
-                iYear--;
-            }
-            return iYear;
+            return Time.ISOYear(Time.ToDate(current.Year, current.Month, current.Day));
         }
 
         /// <summary>
@@ -224,11 +168,9 @@ namespace Mistware.Utils
         /// <returns>String with Date Stamp corresponding to the <paramref name="current"/>year.</returns>
         public static string ToDateStamp(this DateTime current)
         {
-            if (current.Year > 1900)
-            {
-                return (current.Year.ToString("d4") + current.Month.ToString("d2") + current.Day.ToString("d2") + current.Hour.ToString("d2") + current.Minute.ToString("d2"));
-            }
-            return "";
+            long date = Time.ToDate(current.Year, current.Month,  current.Day);
+            long time = Time.ToTime(current.Hour, current.Minute, current.Second);
+            return Time.ToDateStamp(date+time);
         }
 
         /// <summary>
@@ -238,11 +180,9 @@ namespace Mistware.Utils
         /// <returns>String with Log Stamp corresponding to the <paramref name="current"/>year.</returns>
         public static string ToLogStamp(this DateTime current)
         {
-            if (current.Year > 1900)
-            {
-                return (current.Day.ToString("d2") + "/" + current.Month.ToString("d2") + " " + current.Hour.ToString("d2") + ":" + current.Minute.ToString("d2") + ":" + current.Second.ToString("d2"));
-            }
-            return "";
+            long date = Time.ToDate(current.Year, current.Month,  current.Day);
+            long time = Time.ToTime(current.Hour, current.Minute, current.Second);
+            return Time.ToLogStamp(date+time);
         }
 
         /// <summary>
@@ -252,11 +192,7 @@ namespace Mistware.Utils
         /// <returns>String with Date String corresponding to the <paramref name="current"/>year.</returns>
         public static string ToDateString(this DateTime current)
         {
-            if (current.Year > 1900)
-            {
-                return current.ToString("dd/MM/yyyy");
-            }
-            return "";
+            return Time.ToDateString(Time.ToDate(current.Year, current.Month, current.Day));
         }
 
         /// <summary>
@@ -266,14 +202,325 @@ namespace Mistware.Utils
         /// <returns>String with ISO Date String corresponding to the <paramref name="current"/>year.</returns>
         public static string ToISODateString(this DateTime current)
         {
-            int iYear = current.ISOYear();
-            int iWeek = current.ISOWeekNum();
-            int iDay = current.DOW();
-            if (current.Year > 1900)
+            return Time.ToISODateString(Time.ToDate(current.Year, current.Month, current.Day));
+        }
+    }
+
+    /// Date and Time methods 
+    public static class Time
+    {
+
+        const int SecondsPerMinute = 60;
+        const int SecondsPerHour   = 60 * 60;       // SecondsPerMinute * MinutesPerHour
+        const int SecondsPerDay    = 60 * 60 * 24;  // SecondsPerMinute * MinutesPerHour * HoursPerDay
+
+        /// Jan1 - Calculate date value of 1st Jan for given year.
+        public static long Jan1(int year)
+        {
+            int  divby4, divby100, divby400;
+            long days;
+
+            divby4   = (year-1) / 4;
+            divby100 = (year-1) / 100;
+            divby400 = (year-1) / 400;
+
+            days = year*365 + divby4 - divby100 + divby400; 
+            if (year > 0) ++days;
+
+            return days;
+        } 
+
+        /// IsLeap - returns true if the year is a leap year.
+        public static bool IsLeap(int year)
+        {
+            bool leap;
+    
+            if ((((year % 4) == 0) && ((year % 100) != 0)) || ((year % 400) == 0)) 
+                 leap = true;
+            else leap = false;
+
+            return leap;
+        }
+
+        /// DaysInYear - returns number of days in a year.
+        public static int DaysInYear(int year)
+        {
+            if (IsLeap(year)) return 366;
+            else              return 365;
+        }
+
+        /// DaysBefore - returns number of days in the year before month.
+        ///              n.b. adjusted for leap year.
+        private static int DaysBefore(int month, int year)
+        {
+            //                         Jan, Feb, Mar, Apr, May, Jun, Jul, Aug, Sep, Oct, Nov, Dec
+            //                          31,  28,  31,  30,  31,  30,  31,  31,  30,  31,  30,  31
+            int[] before = new int[] {   0,  31,  59,  90, 120, 151, 181, 212, 243, 273, 304, 334, 365 };
+            int adjust;
+
+            if (month < 1 || month > 13) throw new Exception("Month out of bounds in DaysBefore");
+            adjust=0;
+            if (IsLeap(year) && month > 2) adjust=1;
+    
+            return before[month-1]+adjust;
+        }
+
+        /// ToUnixTime - Derive UNIX Time from datetime.
+        public static long ToUnixTime(long dt)
+        {
+            return dt - (Jan1(1970) * (long)SecondsPerDay);
+        }
+
+        /// FromUnixTime - Derive datetime from UNIX Time.
+        public static long FromUnixTime(long ut)
+        {
+            return ut + (Jan1(1970) * (long)SecondsPerDay);
+        }
+        
+        /// Now - Returns System Date and Time as datetime.
+        public static long Now()
+        {
+            long d, t; 
+
+            DateTime now = DateTime.Now;
+
+            t = ToTime(now.Hour, now.Minute, now.Second);
+            d = ToDate(now.Year, now.Month, now.Day);
+            
+            return d + t;
+        }
+
+        /// ToDate - Calculate datetime from as days since 1/1/0000 from year, month and day.
+        public static long ToDate(int year, int month, int day)
+        {
+            return (Jan1(year) + DaysBefore(month, year) + day - 1) * (long)SecondsPerDay;
+        }
+
+        /// ToDays - Convert datetime to days since 1/1/0000
+        public static long ToDays(long dt)
+        {
+            return (long)(dt / (long)SecondsPerDay);
+        }
+
+        /// Year - Calculate year from date.
+        public static int Year(long dt)
+        {
+            int  year;
+            long d, check;
+
+            d = ToDays(dt);
+
+            year = (int)((double)d / 365.2425);
+
+            check = Jan1(year);
+            while (d < check)
             {
-                return (iYear.ToString("d0") + "-" + iWeek.ToString("d0") + "-" + iDay.ToString("d0"));
+                // If the first day of the calculated year is higher than the given days,
+                // then we are a year in advance
+                --year;
+                check = Jan1(year);
             }
-            return "";
+            while (d > ( check + (long)DaysInYear(year) -1L))
+            {
+                // If the last day of the calculated year is lower than the given days,
+                // then we are a year behind
+                ++year;
+                check = Jan1(year);
+            }
+            if (d < check || d > ( check + (long)DaysInYear(year) -1L)) 
+            {
+                throw new Exception("Failed to calculate year from date in Year()");
+            }
+            return year;
+        }
+
+        /// DOY - Calculate Day in Year from date.
+        public static int DOY(long dt)
+        {
+            return (int)(ToDays(dt) - Jan1(Year(dt)) + 1L);
+        }
+
+        /// Month - Calculate Month from date.
+        public static int Month(long dt)
+        {
+            int  year, doy, month;
+
+            year = Year(dt);
+            doy  = DOY(dt);
+
+            // Estimate month on assumption that every month has 31 days.
+            // The estimate may be too low by at most one month, so adjust.
+            month = ((doy-1) / 31) + 1;
+            if (doy > DaysBefore(month+1, year)) month++;
+
+            return month;
+        }
+
+        /// Day - Calculate Day from date.
+        public static int Day(long dt)
+        {
+            int  year, doy, month;
+
+ 
+            year = Year(dt);
+            doy  = DOY(dt);
+            month = Month(dt);
+
+            return doy - DaysBefore(month, year);
+        }
+
+
+        /// AddDays - Add days to datetime.
+        public static long AddDays(long d, int days)
+        {
+            return d + ((long)days * (long)SecondsPerDay);
+        }
+
+        /// Jan1WeekDay - returns the day number of Jan 1st for the year.
+        public static int Jan1WeekDay(int year)
+        {
+            int i, j, k;
+
+            i = (year - 1) % 100;
+            j = (year - 1) - i;
+            k = i + (i / 4);
+    
+            return (1 + (((((j / 100) % 4) * 5) + k) % 7));
+        }
+
+        /// DOW - Day of Week - 1 to 7, where 1 is Monday and 7 is Sunday.
+        public static int DOW(long dt)
+        {
+            return (1 + (((DOY(dt) + Jan1WeekDay(Year(dt))) - 2) % 7));
+        }
+
+        /// ISO Week number, as defined by ISO 8601 returns 1 to 53, where 1 is week one
+        public static int ISOWeekNum(long dt)
+        {
+            int  year;
+            long week1;
+
+            year = Year(dt);
+    
+            if (ToDays(dt) >= ToDays(ToDate(year, 12, 29)))
+            {
+                week1 = ISOWeekOne(year+1);
+                if (ToDays(dt) < ToDays(week1))
+                {
+                    week1 = ISOWeekOne(year);
+                }
+            }
+            else
+            {
+                week1 = ISOWeekOne(year);
+                if (ToDays(dt) < ToDays(week1))
+                {
+                    week1 = ISOWeekOne(year-1);
+                }
+            }
+            return (int)(((ToDays(dt) - ToDays(week1)) / 7L) + 1L);
+        }
+
+        ///***********************************************************************/
+        ///*   ISOWeekOne - The date of the start of ISO week one.               */
+        ///*                Weeks start with Monday. Each week's year is the     */
+        ///*                Gregorian year in which the Thursday falls.          */
+        ///*                The first week of the year, hence, always contains   */
+        ///*                4 January. ISO week year numbering therefore         */
+        ///*                slightly deviates from the Gregorian for some days   */
+        ///*                close to 1 January.                                  */  
+        ///***********************************************************************/
+        public static long ISOWeekOne(int year)
+        {
+            long dt;
+
+            dt = ToDate(year, 1, 4);
+
+            return AddDays(dt, (1 - DOW(dt)));
+        }
+
+        ///***********************************************************************/
+        ///*   ISOYear - The ISO year, which may differ from the Gregorian year  */
+        ///*             for some days close to 1 January.                       */
+        ///*             Weeks start with Monday. Each week's year is the        */
+        ///*             Gregorian year in which the Thursday falls.             */ 
+        ///*             The first week of the year, hence, always contains      */
+        ///*             4 January. ISO week year numbering therefore slightly   */
+        ///*             deviates from the Gregorian for some days close to 1    */
+        ///*             January.                                                */
+        ///***********************************************************************/
+        public static int ISOYear(long dt)
+        {
+            int  year;
+            long days;
+
+            year = Year(dt);
+            days = ToDays(dt);
+
+            if (days >= ToDays(ToDate(year, 12, 29)))
+            {
+                if (days >= ToDays(ISOWeekOne(year+1)))
+                {
+                    year++;
+                }
+            }
+            else
+            {
+                if (days < ToDays(ISOWeekOne(year)))
+                {
+                    year--;
+                }        
+            }
+    
+            return year;
+        }
+
+        /// ToTime - Calculate datetime as seconds past midnight from hour, minute and second.
+        public static long ToTime(int hour, int minute, int second)
+        {
+            return (SecondsPerHour*hour) + (SecondsPerMinute*minute) + second;
+        }
+
+        /// Hour - Return Hour from time (range 0 to 23)
+        public static int Hour(long t)
+        {
+            return (int)( t % SecondsPerDay)  / SecondsPerHour;
+        }
+
+        /// Minute - Return Minute from time (range 0 to 59)
+        public static int Minute(long t)
+        {
+            return (int)( t % SecondsPerHour) / SecondsPerMinute;
+        }
+
+        /// Second - Return Second from time (range 0 to 59)
+        public static int Second(long t)
+        {
+            return (int)( t % SecondsPerMinute);
+        }
+
+        /// ToDateString - Return string with date formatted as dd/MM/yyyy
+        public static string ToDateString(long dt)
+        {
+            return String.Format("{0:d2}/{1:d2}/{2:d4}", Day(dt), Month(dt), Year(dt));
+        }
+
+        /// ToDateString - Return string with date as ISO date yyyy-ww-dd
+        public static string ToISODateString(long dt)
+        {
+            return String.Format("{0:d4}-{1:d}-{2:d}", ISOYear(dt), ISOWeekNum(dt), DOW(dt));
+        }
+
+        /// ToDateStamp - Return string with date formatted as yyyyMMddhhmm
+        public static string ToDateStamp(long dt)
+        {
+            return String.Format("{0:d4}{1:d2}{2:d2}{3:d2}{4:d2}", Year(dt), Month(dt), Day(dt), Hour(dt), Minute(dt));
+        }
+
+        /// ToLogStamp - Return string with date formatted as dd/MM hh:mm:ss
+        public static string ToLogStamp(long dt)
+        {
+            return String.Format("{0:d2}/{1:d2} {2:d2}:{3:d2}:{4:d2}", Day(dt), Month(dt), Hour(dt), Minute(dt), Second(dt));
         }
 
     }

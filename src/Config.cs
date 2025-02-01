@@ -21,7 +21,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using System.Text.Json;
 
 namespace Mistware.Utils
 {
@@ -69,31 +68,12 @@ namespace Mistware.Utils
             configFile = StripDelimiter(contentRoot) + PathDelimiter + configFile;
             string ext = Path.GetExtension(configFile);
             if      ( ext == ".config" || ext == ".xml") ReadConfig(configFile);
-            else if ( ext == ".json"  )                  ReadJsonConfig(configFile);
-
+            else if ( ext == ".json"  )                  throw new Exception("JSON config file type withdrawn");
+            
             // Ensure defaults are set
-            _  = Env;
+            _ = Env;
             if (Get("LogFile")==null) Set("LogFile", AppName+".log");
         }
-
-        private static void ReadJsonConfig(string configFile)
-        {
-            if (File.Exists(configFile))
-            {
-                string json = File.ReadAllText(configFile);
-            
-                using (JsonDocument document = JsonDocument.Parse(json))
-                {
-                    foreach (JsonProperty prop in document.RootElement.EnumerateObject())
-                    {
-                        string key = prop.Name;
-                        string valuekind = prop.Value.ValueKind.ToString();
-                        if      (valuekind == "String")  Config.Set(key, prop.Value.GetString());
-                        else if (valuekind == "Number")  Config.Set(key, prop.Value.GetInt64().ToString());
-                    }
-                }
-            }    
-        }        
 
         private static void ReadConfig(string configFile)
         {
@@ -110,7 +90,9 @@ namespace Mistware.Utils
                     if (node.Name.ToLower() == "connectionstrings") ReadAttributes(node.Nodes, "name", "connectionstring");
                 }
             }
+            else throw new Exception("Config " + configFile + " not found");   
         } 
+
         private static void ReadAttributes(List<XmlFileNode> nodes, string keyName, string valueName)
         {
             string key;
@@ -127,7 +109,7 @@ namespace Mistware.Utils
                         if (attribute.Name.ToLower() == keyName)   key   = attribute.Value;
                         if (attribute.Name.ToLower() == valueName) value = attribute.Value;
                     }
-                    if (key != null && value != null) Config.Set(key, value);
+                    if (key != null && value != null) Config.Set(key, value); 
                 }
             }
         }  

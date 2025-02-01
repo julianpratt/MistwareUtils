@@ -1,12 +1,12 @@
 <Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<TargetFramework>netstandard2.0</TargetFramework>
-		<VersionPrefix>1.0.2</VersionPrefix>
+		<VersionPrefix>1.1.0</VersionPrefix>
 		<VersionSuffix></VersionSuffix>
 		<Authors>Julian Pratt</Authors>
 		<AssemblyTitle>Mistware.Utils</AssemblyTitle>
-		<Description>Library of utility c# classes for apps. Includes: string/date/time extensions, cache, logging, encryption and XML.</Description>
-		<Summary>Library of utility c# classes for apps. Includes: string/date/time extensions, cache, logging, encryption and XML.</Summary>
+		<Description>Library of utility c# classes for apps. Includes: string/date/time extensions and logging.</Description>
+		<Summary>Library of utility c# classes for apps. Includes: string/date/time extensions and logging.</Summary>
 		<NeutralLanguage>en-GB</NeutralLanguage>
 		<PackageId>Mistware.Utils</PackageId>
 		<AssemblyName>MistwareUtils</AssemblyName>
@@ -22,19 +22,13 @@
 	</PropertyGroup>
 	<ItemGroup>
 		<Compile Include="AssemblyInfo.cs" />
-		<Compile Include="src\Cache.cs" />
 		<Compile Include="src\Config.cs" />
 		<Compile Include="src\DateTime.cs" />
-		<Compile Include="src\Encryption.cs" />
 		<Compile Include="src\FileRead.cs" />
 		<Compile Include="src\Log.cs" />
 		<Compile Include="src\MIME.cs" />
 		<Compile Include="src\String.cs" />
-		<Compile Include="src\Xml.cs" />
-		<Compile Include="src\XmlReader.cs" />
+		<Compile Include="src\XmlFileRead.cs" />
+		<None    Include="README.md" Pack="true" PackagePath="\"/>		
 	</ItemGroup>
-	<ItemGroup>
-		<PackageReference Include="System.Runtime.Caching" Version="4.7.0" />
-		<PackageReference Include="System.Text.Json" Version="4.7.1" />
-	</ItemGroup>		
 </Project>

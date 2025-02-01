@@ -315,9 +315,9 @@ namespace Mistware.Utils
         /// Normal ctor, using enum for severity and object for message
         public LogRecord(LogLevel level, object message)
         {
-            int thread = System.Threading.Thread.CurrentThread.ManagedThreadId;
+            int threadId = System.Environment.CurrentManagedThreadId;
 
-            this.Tag      = thread.ToString("d5");
+            this.Tag      = threadId.ToString("d5");
             this.Occurred = DateTime.Now;
             this.Message  = message.ToString();
             this.Level    = level;
@@ -326,9 +326,9 @@ namespace Mistware.Utils
         /// Alternative ctor with integer severity and string message
         public LogRecord(int severity, string message)
         {
-            int thread = System.Threading.Thread.CurrentThread.ManagedThreadId;
+            int threadId = System.Environment.CurrentManagedThreadId;
 
-            this.Tag      = thread.ToString("d5");
+            this.Tag      = threadId.ToString("d5");
             this.Occurred = DateTime.Now;
             this.Message  = message;            
             this.Level    = (LogLevel)severity;

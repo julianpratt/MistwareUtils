@@ -64,7 +64,9 @@ namespace Mistware.Utils
 
         private StreamReader    Reader         { get; set; }
 
-        private HttpWebResponse WebResponse    { get; set; }
+        //private HttpResponseMessage WebResponse    { get; set; }
+        
+        //private readonly HttpClient Client = new HttpClient();
 
         /// Open file for reading. The full name of the file is Path+Filename.
         /// If the first 4 characters of Path are "http" then the file is read from the internet,
@@ -79,13 +81,14 @@ namespace Mistware.Utils
             Path = path;
             Filename = filename;
             Reader = null;
-            WebResponse = null;
+            //WebResponse = null;
 
             string fullname = path + filename;
             string type = (fullname.Right(4) == ".xml") ? "xml" : "txt";  
 
             try
             {
+/*
                  if (path.Left(4) == "http")
                 {
                     // Read file from the internet
@@ -93,11 +96,12 @@ namespace Mistware.Utils
                 }
                 else
                 {
+*/                
                     // Read file from local filesystem
                     if (!File.Exists(fullname)) throw new Exception("Could not read " + fullname + " - file not found.");
                     // Found file
                     Reader = File.OpenText(fullname);
-                }
+//                }
             }
             catch (Exception ex)
             {
@@ -106,18 +110,17 @@ namespace Mistware.Utils
             }
         }
 
+/*
         private void WebOpen(string url, string type)
         {
-            // declare httpwebrequet wrt url defined above
-            HttpWebRequest webrequest = (HttpWebRequest)WebRequest.Create(url);
+            // declare request wrt url defined above
+            Client.BaseAddress = url;
             // set method as get
             webrequest.Method = "GET";
-            // set content type
-            webrequest.ContentType = (type.ToLower() == "xml") ? "text/xml" : "text/plain";
-            // No data is sent 
-            webrequest.ContentLength = 0;
+            // set what content type is accepted
+            webrequest.Headers.Accept = (type.ToLower() == "xml") ? "text/xml" : "text/plain";
             // declare & read response from service
-            WebResponse = (HttpWebResponse)webrequest.GetResponse();
+            WebResponse = await Client.GetStreamAsync(url);
 
             if (WebResponse.StatusCode == HttpStatusCode.OK)
             {
@@ -133,7 +136,7 @@ namespace Mistware.Utils
                 }
             }
         }
-
+*/
         /// Reads a line of characters from the current file and returns the data as a string.
         /// <returns>The next line from the input file, or null if the end of the input file is reached.</returns>
         /// <exception cref="OutOfMemoryException">There is insufficient memory to allocate a buffer for the returned string.</exception>
@@ -168,14 +171,14 @@ namespace Mistware.Utils
                 ResponseStream.Dispose();
                 ResponseStream = null;
             } 
-            
+ /*           
             if (WebResponse != null) 
             {
                 WebResponse.Close();
                 WebResponse.Dispose();
                 WebResponse    = null;
             }
-        
+*/        
         }
 
         /// Check whether a stream is still open (i.e. hasn't been closed).

@@ -28,7 +28,7 @@ namespace Mistware.Utils
     public static class MIME
     {
 
-        private static IDictionary<string, string> _mappings = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase) {
+        private static IDictionary<string, string> _mappings = new Dictionary<string, string>() {
 
         #region Big list of mime types
         {".323", "text/h323"},
@@ -612,6 +612,8 @@ namespace Mistware.Utils
             {
                 extension = "." + extension;
             }
+            
+            extension = extension.ToLower();
 
             string mime;
 

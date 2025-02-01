@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Xml;
 
 using Mistware.Utils;
+using static Mistware.Utils.Time;
 
 namespace MistwareUtilsTest
 {
@@ -20,21 +22,16 @@ namespace MistwareUtilsTest
 			DateTime dBadDate = new DateTime(1,1,1);
 			DateTime dTest;
 
+
 			sFail="";
 			sTest="ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 			sTest2="ABC\nDEFGHI\tJKLMNOPQRSTUVWXYZ";
 
-            // Cache Tests
-			Cache<string>.GetCache().Set("one", () => "First Value" );
-            Cache<string>.GetCache().Set("two", () => "Second Value");
-            List<string> l = Cache<string>.GetCache().ListKeys();
-            foreach (string s1 in l) if (s1 != "one" && s1 != "two" ) sFail += "CacheTest1 ";
-			if (Cache<string>.GetCache().Get("two", () => "Second Value") != "Second Value") sFail += "CacheTest2 ";
-			
+
             // Config Tests
 			try
 			{
-				Config.Setup("test.xml",".", "web", "app");
+				Config.Setup("test/Test.xml",".", "web", "app");
 			}
 			catch (Exception ex)
 			{
@@ -50,23 +47,6 @@ namespace MistwareUtilsTest
 			string delim = System.IO.Path.DirectorySeparatorChar.ToString();
 			if (Config.LogFile != "."+delim+"Logs"+delim+"app.log") sFail += "ConfigTest8 ";
 
-            try
-			{
-				Config.Setup("appsettings.json",".", "web", "app");
-			}
-			catch (Exception ex)
-			{
-				Console.WriteLine("Config.Setup failed with: " + ex.Message);
-				sFail += "ConfigTest9 ";
-			}
-			if (Config.ContentRoot    != ".")        sFail += "ConfigTest10 "; 
-			if (Config.WebRoot        != "web")      sFail += "ConfigTest11 "; 
-			if (Config.AppName        != "app")      sFail += "ConfigTest12 "; 
-			if (Config.AppURL.Left(8) != "http://r") sFail += "ConfigTest13 ";
-			if (Config.Env.Left(4)    != "Prod")     sFail += "ConfigTest14 ";
-			if (Config.Debug)                        sFail += "ConfigTest15 ";
-			if (Config.LogFile != "."+delim+"Logs"+delim+"app.log") sFail += "ConfigTest16 ";
-
 
 			// DateTime tests
 
@@ -81,6 +61,7 @@ namespace MistwareUtilsTest
             // Date Tests
 
             // Test DOW
+            CultureInfo.CurrentCulture = new CultureInfo("en-GB"); // needed because we have dates in strings
             if ("24/12/2009".ToDateTime().DOW() != 4) sFail+="DOW1 ";
             if ("27/12/2009".ToDateTime().DOW() != 7) sFail+="DOW2 ";
             if ("29/02/2008".ToDateTime().DOW() != 5) sFail+="DOW3 ";
@@ -159,18 +140,18 @@ namespace MistwareUtilsTest
 
             // Test ToISODateString
 			if ("1/3/2020".ToDateTime().ToISODateString()         != "2020-9-7"       ) sFail+="ToISODateString ";
-    
-			// Test Encryption
-			Encryption.Key = string.Format("TheLORDismyShepherdIshallnot{0:dd}inwantHemakes=", DateTime.Now);
-			if (Encryption.Decrypt(Encryption.Encrypt(sTest)) != sTest) sFail+="Encryption ";
+   
+			int unixTime = (int)DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
+			if (unixTime != ToUnixTime(Now()) )                                         sFail+="ToUnixTime ";
+			if (ToLogStamp(FromUnixTime(unixTime)) != ToLogStamp(Now()) )               sFail+="FromUnixTime ";
 			
 			// Test Log and FileRead
 			Log.Me.LogFile="Test.log";
 			Log.Me.Info("Hello, World");
 			using (FileRead f = new FileRead("."+delim, "Test.log")) s = f.ReadLine();
-			if (s.Left(9)   != DateTime.Now.ToLogStamp().Left(9)) sFail+="Log&FileRead1 ";
-			if (s.Right(21) != "] INFO : Hello, World")           sFail+="Log&FileRead2 ";
-			File.Delete("Test.Log");
+			if (s.Left(11)  != DateTime.Now.ToLogStamp().Left(11)) sFail+="Log&FileRead1 ";
+			if (s.Right(21) != "] INFO : Hello, World")            sFail+="Log&FileRead2 ";
+			File.Delete("Test.log");
 
 			// Test MIME
 			if (MIME.GetMimeType("mp3") != "audio/mpeg") sFail+="MIME ";
@@ -288,40 +269,18 @@ namespace MistwareUtilsTest
 
             // Test MultiPart
             if (s.MultiPart(':').ToList<string>().ListToString(":") != s) sFail+="Multipart ";
-           
-            
-			// Test XML
 
-            // Test LoadList and ToDictionary
-            Dictionary<string,string> dict = XML.LoadList("Types.xml", "Types/SearchTypes", "value", "name").ToDictionary();
-            if (dict.DictToString() != "R=Report,M=Memo,WP=Welding Procedure") sFail+="XML LoadList&ToDictionary ";
-        
-            // Test XMLTransform and AsString
-            XmlDocument xdoc = new XmlDocument();
-            xdoc.Load("Types.xml");
-            string xml = xdoc.AsString();
-            xml = XML.XmlNodePoke(xml, "Types/SearchTypes[1]", "text", "Rubbish");
-            xml = XML.XMLTransform(xml , "Types.xslt");
-       
-            // Test ReadXMLNode
-            if (XML.ReadXmlNode(xml,"root/Types/Type[@Key='WP']") != "Welding Procedure (WP)") sFail+="ReadXMLNode "; 
 
-            // Test ReadXMLAttribute
-            if (XML.ReadXmlAttribute(xml,"root/Types/Type[@Key='M']/@Name") != "Memo") sFail+="ReadXMLAttribute ";
-
-            // Test XMLNodePoke
-            if (XML.ReadXmlNode(xml,"root/Types/Type[@Key='R']") != "Rubbish") sFail+="XMLNodePoke ";
-        
             if (sFail.Length == 0) 
             {
                   Console.WriteLine("**********************");
-                  Console.WriteLine("** All Tests passed **");
+                  Console.WriteLine("** All Tests Passed **");
                   Console.WriteLine("**********************");      
             }            
             else 
             {
                   Console.WriteLine("!!!!!!!!!!!!!!!!!!!");                  
-                  Console.WriteLine("!! Failed tests: " + sFail);                  
+                  Console.WriteLine("!! Failed Tests: " + sFail);                  
                   Console.WriteLine("!!!!!!!!!!!!!!!!!!!");                                    
             }
 
